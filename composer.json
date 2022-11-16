@@ -1,0 +1,20 @@
+{
+    "name": "ibazhe/cookies",
+    "type": "library",
+    "require": {
+        "php": ">=5.6.0"
+    },
+    "license": "Apache-2.0",
+    "autoload": {
+        "psr-4": {
+            "Ibazhe\\Cookies\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "bazhe",
+            "email": "1031601644@qq.com"
+        }
+    ],
+    "minimum-stability": "dev"
+}
