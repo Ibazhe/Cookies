@@ -1,5 +1,6 @@
 {
     "name": "ibazhe/cookies",
+    "description": "ziyong",
     "type": "library",
     "require": {
         "php": ">=5.6.0"
