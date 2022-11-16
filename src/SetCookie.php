@@ -8,7 +8,7 @@
 
 namespace Ibazhe\Cookies;
 
-class Cookie
+class SetCookie
 {
     public $Name = null;
     public $Value = null;

@@ -23,7 +23,7 @@ class CookiesManager
                 //var_dump($header_value);
                 $set_cookie_arr = explode(";", $header_value);
                 //var_dump($set_cookie_arr);
-                $temp_cookie         = new Cookie();
+                $temp_cookie         = new SetCookie();
                 $temp_cookie->Domain = $domain;
                 foreach ($set_cookie_arr as $index => $attributes) {
                     $attributes     = trim($attributes);
@@ -75,7 +75,7 @@ class CookiesManager
         //print_r($this->cookies_arr);//exit();
         $res_ck = '';
         /**
-         * @var $cookie    Cookie
+         * @var $cookie    SetCookie
          */
 
         foreach ($this->cookies_arr as $index => $cookie) {
@@ -110,7 +110,7 @@ class CookiesManager
 
     /**
      * 更新/添加cookie
-     * @param $up_cookie Cookie|string   cookies文本或者cookie对象或者cookie对象数组
+     * @param $up_cookie SetCookie|string   cookies文本或者cookie对象或者cookie对象数组
      * @return void
      */
     public function up($up_cookie) {
@@ -120,19 +120,19 @@ class CookiesManager
             $cookie_str_arr = explode(';', $up_cookie);
             foreach ($cookie_str_arr as $cookie_str) {
                 $temp_arr           = explode('=', $cookie_str);
-                $temp_cookie        = new Cookie();
+                $temp_cookie        = new SetCookie();
                 $temp_cookie->Name  = trim($temp_arr[0]);
                 $temp_cookie->Value = trim($temp_arr[1]);
                 $up_cookie_arr[]    = $temp_cookie;
             }
         }
         //把cookie对象转成cookie对象数组
-        if ($up_cookie instanceof Cookie) {
+        if ($up_cookie instanceof SetCookie) {
             $up_cookie_arr = [$up_cookie];
         }
         /**
-         * @var $temp_up_cookie    Cookie
-         * @var $cookie            Cookie
+         * @var $temp_up_cookie    SetCookie
+         * @var $cookie            SetCookie
          */
         //遍历需要添加的cookie
         foreach ($up_cookie_arr as $temp_up_cookie) {
