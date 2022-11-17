@@ -5,6 +5,7 @@
  * creatTime   : 2022/11/15 21:53
  * description :
  */
+
 namespace Ibazhe\Cookies;
 
 class CookiesManager
@@ -12,8 +13,13 @@ class CookiesManager
     protected $cookies_arr = [];
 
     public function upH($headers, $url = null) {
-        $parse       = parse_url($url);
-        $domain      = $parse['host'];
+        if ($url === null) {
+            $domain = null;
+        } else {
+            $parse  = parse_url($url);
+            $domain = $parse['host'];
+        }
+
         $headers_arr = explode("\r\n", $headers);
         foreach ($headers_arr as $header) {
             $header_name_offset = stripos($header, ":");
