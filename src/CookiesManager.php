@@ -10,8 +10,35 @@ namespace Ibazhe\Cookies;
 
 class CookiesManager
 {
+    /**
+     * @var SetCookie[] 本对象管理的cookies
+     */
     protected $cookies_arr = [];
 
+    /**
+     *
+     * @param $serialize_cookies string 本对象序列化后的cookies
+     */
+    public function __construct($serialize_cookies = null) {
+        if ($serialize_cookies !== null) {
+            $this->cookies_arr = unserialize($serialize_cookies);
+        }
+    }
+
+    /**
+     * 导出序列化后本对象管理的cookies
+     * @return string
+     */
+    public function exportCookis() {
+        return serialize($this->cookies_arr);
+    }
+
+    /**
+     * 更新cookie，传入响应头
+     * @param $headers string 响应头
+     * @param $url     string
+     * @return void
+     */
     public function upH($headers, $url = null) {
         if ($url === null) {
             $domain = null;
@@ -19,94 +46,60 @@ class CookiesManager
             $parse  = parse_url($url);
             $domain = $parse['host'];
         }
-
         $headers_arr = explode("\r\n", $headers);
         foreach ($headers_arr as $header) {
             $header_name_offset = stripos($header, ":");
             $header_name        = substr($header, 0, $header_name_offset);
             $header_value       = substr($header, $header_name_offset + 1);
             if (self::equal($header_name, 'Set-Cookie')) {
-                //var_dump($header_value);
-                $set_cookie_arr = explode(";", $header_value);
-                //var_dump($set_cookie_arr);
-                $temp_cookie         = new SetCookie();
-                $temp_cookie->Domain = $domain;
-                foreach ($set_cookie_arr as $index => $attributes) {
-                    $attributes     = trim($attributes);
-                    $attributes_arr = explode("=", $attributes);
-                    if (count($attributes_arr) === 2) {
-                        //print_r($attributes_arr);
-                        $attributes_key   = trim($attributes_arr[0]);
-                        $attributes_value = trim($attributes_arr[1]);
-                        //只有第一个键值对才是cookie
-                        if ($index === 0) {
-                            $temp_cookie->Name  = $attributes_key;
-                            $temp_cookie->Value = $attributes_value;
-                        } else {
-                            if (self::equal($attributes_key, 'Expires')) {
-                                //var_dump($attributes_value);
-                                $temp_cookie->Expires = strtotime($attributes_value);
-                            } elseif (self::equal($attributes_key, 'Domain')) {
-                                $temp_cookie->Domain = $attributes_value;
-                            } elseif (self::equal($attributes_key, 'Path')) {
-                                $temp_cookie->Path = $attributes_value;
-                            } elseif (self::equal($attributes_key, 'SameSite')) {
-                                $temp_cookie->SameSite = $attributes_value;
-                            }
-                        }
-                    } else {
-                        if (self::equal($attributes, 'Secure')) {
-                            $temp_cookie->Secure = true;
-                        } elseif (self::equal($attributes, 'HttpOnly')) {
-                            $temp_cookie->HttpOnly = true;
-                        }
-                    }
-                }
-                $this->up($temp_cookie);
+                $this->up(new SetCookie($header_value, $domain));
             }
         }
     }
 
     /**
-     * @param $url      string 欲使用此cookie访问的url
+     * 获取cookie
+     * @param $url      string 欲使用此cookies访问的url,为空则获取全部
      * @param $is_xhr   bool 是否为xhr/ajax/js请求
      * @return string
      */
-    public function getCookies($url, $is_xhr = false) {
-        $parse  = parse_url($url);
-        $domain = $parse['host'];
-        $path   = $parse['path'];
-        $secure = $parse['scheme'] == 'https';
-        //var_dump($parse);
-        //print_r($this->cookies_arr);//exit();
+    public function getCookies($url='', $is_xhr = false) {
+        if(!empty($url)){
+            $parse  = parse_url($url);
+            $domain = $parse['host'];
+            $path   = $parse['path'];
+            $secure = $parse['scheme'] == 'https';
+        }
         $res_ck = '';
         /**
          * @var $cookie    SetCookie
          */
 
         foreach ($this->cookies_arr as $index => $cookie) {
-            if (!(self::equal($cookie->Domain, $domain) || self::endWith('.' . $domain, $cookie->Domain))) {
-                //var_dump('Domain' . $domain . '|' . $cookie->Domain);
-                continue;
-            }
-            //如果cookie的路径在请求的路径首部，代表通过
-            if (!self::startWith($path, $cookie->Path)) {
-                //var_dump('Path' . $path . '|' . $cookie->Path);
-                continue;
-            }
-            //如果是xhr请求的话，HttpOnly不能是true,不然不要这个ck。如果不是的话，就无所谓了
-            if ($is_xhr && $cookie->HttpOnly) {
-                //var_dump($cookie->Name);
-                continue;
-            }
+            if(!empty($url)){
+                if (!(self::equal($cookie->Domain, $domain) || self::endWith('.' . $domain, $cookie->Domain))) {
+                    //var_dump('Domain' . $domain . '|' . $cookie->Domain);
+                    continue;
+                }
+                //如果cookie的路径在请求的路径首部，代表通过
+                if (!self::startWith($path, $cookie->Path)) {
+                    //var_dump('Path' . $path . '|' . $cookie->Path);
+                    continue;
+                }
+                //如果是xhr请求的话，HttpOnly不能是true,不然不要这个ck。如果不是的话，就无所谓了
+                if ($is_xhr && $cookie->HttpOnly) {
+                    //var_dump($cookie->Name);
+                    continue;
+                }
 
-            if ($cookie->Secure != $secure) {
-                //var_dump('Secure' . $secure . '|' . $cookie->Secure);
-                continue;
-            }
-            if ($cookie->Expires < time()) {
-                //var_dump('time');
-                continue;
+                if ($cookie->Secure != $secure) {
+                    //var_dump('Secure' . $secure . '|' . $cookie->Secure);
+                    continue;
+                }
+                if ($cookie->Expires < time()) {
+                    //var_dump('time');
+                    continue;
+                }
             }
             $res_ck .= $cookie->Name . '=' . $cookie->Value . ';';
         }
@@ -115,8 +108,8 @@ class CookiesManager
     }
 
     /**
-     * 更新/添加cookie
-     * @param $up_cookie SetCookie|string   cookies文本或者cookie对象或者cookie对象数组
+     * 更新/添加cookies(多条/单条)
+     * @param $up_cookie SetCookie|SetCookie[]|string   cookies文本(多条用;分割)或者cookie对象(多条传入数组)或者cookie对象数组
      * @return void
      */
     public function up($up_cookie) {
