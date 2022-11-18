@@ -200,7 +200,7 @@ class CookiesManager
      * @return void
      * @throws Exception
      */
-    protected static function checkUrl($url) {
+    public static function checkUrl($url) {
         if (!empty($url)) {
             if (filter_var($url, FILTER_VALIDATE_URL) === false) {
                 throw new Exception('url校验异常');
