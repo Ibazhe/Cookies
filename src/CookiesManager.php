@@ -63,8 +63,8 @@ class CookiesManager
      * @param $is_xhr   bool 是否为xhr/ajax/js请求
      * @return string
      */
-    public function getCookies($url='', $is_xhr = false) {
-        if(!empty($url)){
+    public function getCookies($url = '', $is_xhr = false) {
+        if (!empty($url)) {
             $parse  = parse_url($url);
             $domain = $parse['host'];
             $path   = $parse['path'];
@@ -76,7 +76,7 @@ class CookiesManager
          */
 
         foreach ($this->cookies_arr as $index => $cookie) {
-            if(!empty($url)){
+            if (!empty($url)) {
                 if (!(self::equal($cookie->Domain, $domain) || self::endWith('.' . $domain, $cookie->Domain))) {
                     //var_dump('Domain' . $domain . '|' . $cookie->Domain);
                     continue;

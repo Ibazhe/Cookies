@@ -27,11 +27,22 @@ class SetCookie
      * @param $domain         string 所属的域名
      */
     public function __construct($set_cookie_str = null, $domain = null) {
-        if ($set_cookie_str !== null) {
+        if ($set_cookie_str === null) {
             return;
         }
-        $set_cookie_arr = explode(";", $set_cookie_str);
-        //var_dump($set_cookie_arr);
+        //判断是否包含Set-Cookie:
+        if (stripos($set_cookie_str, "Set-Cookie:") !== false) {
+            $header_name_offset = stripos($set_cookie_str, ":");
+            $header_name        = substr($set_cookie_str, 0, $header_name_offset);
+            $header_value       = substr($set_cookie_str, $header_name_offset + 1);
+            if (self::equal($header_name, 'Set-Cookie')) {
+                $set_cookie_arr = explode(";", $header_value);
+            } else {
+                return;
+            }
+        } else {
+            $set_cookie_arr = explode(";", $set_cookie_str);
+        }
         $this->Domain = $domain;
         foreach ($set_cookie_arr as $index => $attributes) {
             $attributes     = trim($attributes);
