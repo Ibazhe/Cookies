@@ -8,6 +8,8 @@
 
 namespace Ibazhe\Cookies;
 
+use Exception;
+
 class CookiesManager
 {
     /**
@@ -19,8 +21,8 @@ class CookiesManager
      *
      * @param $serialize_cookies string 本对象序列化后的cookies
      */
-    public function __construct($serialize_cookies = null) {
-        if ($serialize_cookies !== null) {
+    public function __construct($serialize_cookies = '') {
+        if (!empty($serialize_cookies)) {
             $this->cookies_arr = unserialize($serialize_cookies);
         }
     }
@@ -38,14 +40,16 @@ class CookiesManager
      * @param $headers string 响应头
      * @param $url     string
      * @return void
+     * @throws Exception
      */
-    public function upH($headers, $url = null) {
-        if ($url === null) {
-            $domain = null;
-        } else {
+    public function upH($headers, $url = '') {
+        $domain = null;
+        if (!empty($url)) {
+            self::checkUrl($url);
             $parse  = parse_url($url);
             $domain = $parse['host'];
         }
+
         $headers_arr = explode("\r\n", $headers);
         foreach ($headers_arr as $header) {
             $header_name_offset = stripos($header, ":");
@@ -62,9 +66,11 @@ class CookiesManager
      * @param $url      string 欲使用此cookies访问的url,为空则获取全部
      * @param $is_xhr   bool 是否为xhr/ajax/js请求
      * @return string
+     * @throws Exception
      */
     public function getCookies($url = '', $is_xhr = false) {
         if (!empty($url)) {
+            self::checkUrl($url);
             $parse  = parse_url($url);
             $domain = $parse['host'];
             $path   = $parse['path'];
@@ -178,7 +184,32 @@ class CookiesManager
         return (substr($str, 0, $length) === $suffix);
     }
 
+    /**
+     * 不区分大小写判断两个字符串是否相同
+     * @param $str1
+     * @param $str2
+     * @return bool
+     */
     protected static function equal($str1, $str2) {
         return strcasecmp($str1, $str2) == 0;
+    }
+
+    /**
+     * 判断url是否正确，否则抛出异常
+     * @param $url
+     * @return void
+     * @throws Exception
+     */
+    protected static function checkUrl($url) {
+        if (!empty($url)) {
+            if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+                throw new Exception('url校验异常');
+            }
+
+            $parse = parse_url($url);
+            if (empty($parse['host'])) {
+                throw new Exception('url校验异常');
+            }
+        }
     }
 }
