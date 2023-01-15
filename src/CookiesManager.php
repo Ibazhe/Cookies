@@ -190,7 +190,10 @@ class CookiesManager
      * @param $str2
      * @return bool
      */
-    public static function equal($str1, $str2) {
+    protected static function equal($str1, $str2) {
+        if($str1===null && $str2!==null)return false;
+        if($str2===null && $str1!==null)return false;
+        if($str2===null && $str1===null)return true;
         return strcasecmp($str1, $str2) == 0;
     }
 
