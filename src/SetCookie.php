@@ -35,7 +35,7 @@ class SetCookie
             $header_name_offset = stripos($set_cookie_str, ":");
             $header_name        = substr($set_cookie_str, 0, $header_name_offset);
             $header_value       = substr($set_cookie_str, $header_name_offset + 1);
-            if (self::equal($header_name, 'Set-Cookie')) {
+            if (equal($header_name, 'Set-Cookie')) {
                 $set_cookie_arr = explode(";", $header_value);
             } else {
                 return;
@@ -56,32 +56,25 @@ class SetCookie
                     $this->Name  = $attributes_key;
                     $this->Value = $attributes_value;
                 } else {
-                    if (self::equal($attributes_key, 'Expires')) {
+                    if (equal($attributes_key, 'Expires')) {
                         //var_dump($attributes_value);
                         $this->Expires = strtotime($attributes_value);
-                    } elseif (self::equal($attributes_key, 'Domain')) {
+                    } elseif (equal($attributes_key, 'Domain')) {
                         $this->Domain = $attributes_value;
-                    } elseif (self::equal($attributes_key, 'Path')) {
+                    } elseif (equal($attributes_key, 'Path')) {
                         $this->Path = $attributes_value;
-                    } elseif (self::equal($attributes_key, 'SameSite')) {
+                    } elseif (equal($attributes_key, 'SameSite')) {
                         $this->SameSite = $attributes_value;
                     }
                 }
             } else {
-                if (self::equal($attributes, 'Secure')) {
+                if (equal($attributes, 'Secure')) {
                     $this->Secure = true;
-                } elseif (self::equal($attributes, 'HttpOnly')) {
+                } elseif (equal($attributes, 'HttpOnly')) {
                     $this->HttpOnly = true;
                 }
             }
         }
 
-    }
-
-    protected static function equal($str1, $str2) {
-        if($str1===null && $str2!==null)return false;
-        if($str2===null && $str1!==null)return false;
-        if($str2===null && $str1===null)return true;
-        return strcasecmp($str1, $str2) == 0;
     }
 }

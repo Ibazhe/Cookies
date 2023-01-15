@@ -55,7 +55,7 @@ class CookiesManager
             $header_name_offset = stripos($header, ":");
             $header_name        = substr($header, 0, $header_name_offset);
             $header_value       = substr($header, $header_name_offset + 1);
-            if (self::equal($header_name, 'Set-Cookie')) {
+            if (equal($header_name, 'Set-Cookie')) {
                 $this->up(new SetCookie($header_value, $domain));
             }
         }
@@ -83,7 +83,7 @@ class CookiesManager
 
         foreach ($this->cookies_arr as $index => $cookie) {
             if (!empty($url)) {
-                if (!(self::equal($cookie->Domain, $domain) || self::endWith('.' . $domain, $cookie->Domain))) {
+                if (!(equal($cookie->Domain, $domain) || self::endWith('.' . $domain, $cookie->Domain))) {
                     //var_dump('Domain' . $domain . '|' . $cookie->Domain);
                     continue;
                 }
@@ -182,19 +182,6 @@ class CookiesManager
             return true;
         }
         return (substr($str, 0, $length) === $suffix);
-    }
-
-    /**
-     * 不区分大小写判断两个字符串是否相同
-     * @param $str1
-     * @param $str2
-     * @return bool
-     */
-    protected static function equal($str1, $str2) {
-        if($str1===null && $str2!==null)return false;
-        if($str2===null && $str1!==null)return false;
-        if($str2===null && $str1===null)return true;
-        return strcasecmp($str1, $str2) == 0;
     }
 
     /**

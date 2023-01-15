@@ -9,7 +9,8 @@
     "autoload": {
         "psr-4": {
             "Ibazhe\\Cookies\\": "src/"
-        }
+        },
+        "files": ["src/functions.php"]
     },
     "authors": [
         {
