@@ -163,6 +163,9 @@ class CookiesManager
      * @return bool
      */
     protected static function endWith($str, $suffix) {
+        if($suffix===null){
+            return true;
+        }
         $length = strlen($suffix);
         if ($length == 0) {
             return true;
