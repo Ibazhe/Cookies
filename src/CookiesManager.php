@@ -73,7 +73,11 @@ class CookiesManager
             self::checkUrl($url);
             $parse  = parse_url($url);
             $domain = $parse['host'];
-            $path   = $parse['path'];
+            if(isset($parse['path'])){
+                $path   = $parse['path'];
+            }else{
+                $path   = '/';
+            }
             $secure = $parse['scheme'] == 'https';
         }
         $res_ck = '';
