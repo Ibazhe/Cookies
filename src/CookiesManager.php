@@ -200,12 +200,12 @@ class CookiesManager
     public static function checkUrl($url) {
         if (!empty($url)) {
             if (filter_var($url, FILTER_VALIDATE_URL) === false) {
-                throw new Exception('url校验异常');
+                throw new Exception($url.':url校验异常');
             }
 
             $parse = parse_url($url);
             if (empty($parse['host'])) {
-                throw new Exception('url校验异常');
+                throw new Exception($url.':url校验异常');
             }
         }
     }
