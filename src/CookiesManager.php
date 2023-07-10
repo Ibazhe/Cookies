@@ -21,8 +21,7 @@ class CookiesManager
      *
      * @param $serialize_cookies string 本对象序列化后的cookies
      */
-    public function __construct($serialize_cookies = '')
-    {
+    public function __construct($serialize_cookies = '') {
         if (!empty($serialize_cookies)) {
             $this->cookies_arr = unserialize($serialize_cookies);
         }
@@ -32,8 +31,7 @@ class CookiesManager
      * 导出序列化后本对象管理的cookies
      * @return string
      */
-    public function exportCookis()
-    {
+    public function exportCookis() {
         return serialize($this->cookies_arr);
     }
 
@@ -44,8 +42,7 @@ class CookiesManager
      * @return void
      * @throws Exception
      */
-    public function upH($headers, $url = '')
-    {
+    public function upH($headers, $url = '') {
         $domain = null;
         if (!empty($url)) {
             self::checkUrl($url);
@@ -71,16 +68,15 @@ class CookiesManager
      * @return string
      * @throws Exception
      */
-    public function getCookies($url = '', $is_xhr = false)
-    {
+    public function getCookies($url = '', $is_xhr = false) {
         if (!empty($url)) {
             self::checkUrl($url);
             $parse  = parse_url($url);
             $domain = $parse['host'];
-            if (isset($parse['path'])) {
-                $path = $parse['path'];
-            } else {
-                $path = '/';
+            if(isset($parse['path'])){
+                $path   = $parse['path'];
+            }else{
+                $path   = '/';
             }
             $secure = $parse['scheme'] == 'https';
         }
@@ -126,17 +122,16 @@ class CookiesManager
      * @param $up_cookie SetCookie|SetCookie[]|string   cookies文本(多条用;分割)或者cookie对象(多条传入数组)或者cookie对象数组
      * @return void
      */
-    public function up($up_cookie)
-    {
+    public function up($up_cookie) {
         $up_cookie_arr = [];
         //把cookies文本转成cookie对象数组
         if (is_string($up_cookie)) {
             $cookie_str_arr = explode(';', $up_cookie);
             foreach ($cookie_str_arr as $cookie_str) {
-                $cookie_name_offset = stripos($cookie_str, "=");
+                $temp_arr           = explode('=', $cookie_str);
                 $temp_cookie        = new SetCookie();
-                $temp_cookie->Name  = trim(substr($cookie_str, 0, $cookie_name_offset));
-                $temp_cookie->Value = trim(substr($cookie_str, $cookie_name_offset + 1));
+                $temp_cookie->Name  = trim($temp_arr[0]);
+                $temp_cookie->Value = trim($temp_arr[1]);
                 $up_cookie_arr[]    = $temp_cookie;
             }
         }
@@ -171,9 +166,8 @@ class CookiesManager
      * @param $suffix
      * @return bool
      */
-    protected static function endWith($str, $suffix)
-    {
-        if ($suffix === null) {
+    protected static function endWith($str, $suffix) {
+        if($suffix===null){
             return true;
         }
         $length = strlen($suffix);
@@ -189,8 +183,7 @@ class CookiesManager
      * @param $suffix
      * @return bool
      */
-    protected static function startWith($str, $suffix)
-    {
+    protected static function startWith($str, $suffix) {
         $length = strlen($suffix);
         if ($length == 0) {
             return true;
@@ -204,17 +197,30 @@ class CookiesManager
      * @return void
      * @throws Exception
      */
-    public static function checkUrl($url)
-    {
+    public static function checkUrl($url) {
         if (!empty($url)) {
-            if (filter_var($url, FILTER_VALIDATE_URL) === false) {
-                throw new Exception($url . ':url校验异常');
+            if (validate_url($url) === false) {
+                throw new Exception($url.':url校验异常1');
             }
 
             $parse = parse_url($url);
             if (empty($parse['host'])) {
-                throw new Exception($url . ':url校验异常');
+                throw new Exception($url.':url校验异常');
             }
         }
+    }
+
+    /**
+     * 校验URL是否合法
+     * @param $url
+     * @return bool
+     */
+    protected function validate_url($url) {
+        // 先将URL中的中文字符进行编码
+        $url = preg_replace_callback('/[^\x20-\x7f]+/u', function($match) {
+            return urlencode($match[0]);
+        }, $url);
+        // 校验URL是否合法
+        return filter_var($url, FILTER_VALIDATE_URL) !== false;
     }
 }
