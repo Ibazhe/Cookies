@@ -216,6 +216,7 @@ class CookiesManager
      * @return bool
      */
     protected static function validate_url($url) {
+        $url = str_replace(' ', '%20', $url);
         // 先将URL中的中文字符进行编码
         $url = preg_replace_callback('/[^\x20-\x7f]+/u', function($match) {
             return urlencode($match[0]);
