@@ -199,7 +199,7 @@ class CookiesManager
      */
     public static function checkUrl($url) {
         if (!empty($url)) {
-            if (validate_url($url) === false) {
+            if (self::validate_url($url) === false) {
                 throw new Exception($url.':url校验异常1');
             }
 
@@ -215,7 +215,7 @@ class CookiesManager
      * @param $url
      * @return bool
      */
-    protected function validate_url($url) {
+    protected static function validate_url($url) {
         // 先将URL中的中文字符进行编码
         $url = preg_replace_callback('/[^\x20-\x7f]+/u', function($match) {
             return urlencode($match[0]);
